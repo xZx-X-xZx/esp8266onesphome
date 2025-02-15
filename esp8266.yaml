@@ -1,0 +1,390 @@
+esphome:
+  name: esp80266
+  friendly_name: esp80266
+
+esp8266:
+  board: esp01_1m
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/esphome/esphome.git
+      ref: main
+    components: [uart]
+
+# Enable logging
+logger:
+  baud_rate: 0  # 将串口日志波特率设置为 0，禁用串口日志输出
+  #level: INFO  # 设置日志级别，可根据需要调整
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "t0Gm/4xUrwPvx36RUgT3Xh8YkXP81YLY9LDwLg0kd0k="
+
+ota:
+  - platform: esphome
+    password: "123456"
+
+wifi:
+  ssid: "XXX"
+  password: "12345678"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp80266 Fallback Hotspot"
+    password: "88888888"
+
+
+
+
+      
+uart:
+  tx_pin: 5  # 根据实际连接修改TX引脚
+  rx_pin: 4  # 根据实际连接修改RX引脚
+  baud_rate: 9600  # 波特率，需与单片机设置一致
+  debug:
+    direction: RX
+    dummy_receiver: true
+    after:
+      delimiter: "\r\n"
+    sequence:
+      - lambda: |-
+          // 将接收到的字节数据转换为字符串
+          std::string str(bytes.begin(), bytes.end());
+          if (str.compare("A1\r\n") == 0) {
+              id(oled_display).fill(COLOR_OFF);
+              id(display_text).publish_state("打开 L5");
+              id(switch_l3).turn_on();
+              id(switch_l3l2).execute();
+          } else if (str.compare("A2\r\n") == 0) {
+              id(oled_display).fill(COLOR_OFF);
+              id(display_text).publish_state("关闭 L1");
+              id(switch_l1).turn_on();
+          } else if (str.compare("A3\r\n") == 0) {
+              id(oled_display).fill(COLOR_OFF);
+              id(display_text).publish_state("照明 L4");
+              id(switch_l4).turn_on();
+          } else if (str.compare("A4\r\n") == 0) {
+              id(oled_display).fill(COLOR_OFF);
+              id(display_text).publish_state("收衣服 A4");
+              id(switch_l4).turn_on();
+              id(switch_l4r4l3r3l2r2).execute();
+          } else if (str.compare("A5\r\n") == 0) {
+              id(oled_display).fill(COLOR_OFF);
+              id(display_text).publish_state("收起来 A5");
+              id(switch_l1).turn_on();
+              id(switch_l1r1l4r4).execute();
+          } else if (str.compare("A6\r\n") == 0) {
+              id(oled_display).fill(COLOR_OFF);
+              id(display_text).publish_state("照明 L4a");
+              id(switch_l4).turn_on();
+          }
+    
+# if (str.compare("L1\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("上升 L1");
+#             id(switch_l1).turn_on();
+#           } else if (str.compare("L2\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("停止 L2");
+#             id(switch_l2).turn_on();
+#           } else if (str.compare("L3\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("调试 L3");
+#             id(switch_l3).turn_on();
+#           } else if (str.compare("L4\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("照明 L4");
+#             id(switch_l4).turn_on();
+#           } else if (str.compare("R1\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("上升 R1");
+#             id(switch_r1).turn_on();
+#           } else if (str.compare("R2\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("停止 R2");
+#             id(switch_r2).turn_on();
+#           } else if (str.compare("R3\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("调试 R3");
+#             id(switch_r3).turn_on();
+#           } else if (str.compare("R4\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("照明 R4");
+#             id(switch_r4).turn_on();
+#           }else if (str.compare("A1\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("上升 A1");
+#             id(switch_l1).turn_on();
+#             id(switch_l1r1).execute();
+#           }else if (str.compare("A2\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("停止 A2");
+#             id(switch_l2).turn_on();
+#             id(switch_l2r2).execute();
+#           }else if (str.compare("A3\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("调试 A3");
+#             id(switch_l3).turn_on();
+#             id(switch_l3r3).execute();
+#           }else if (str.compare("A4\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("照明 A4");
+#             id(switch_l4).turn_on();
+#             id(switch_l4r4).execute();
+#           }else if (str.compare("A5\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("下降 A5");
+#             id(switch_l3).turn_on();
+#             id(switch_l3r3l2r2).execute();
+#           }else if (str.compare("L5\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("下降 L5");
+#             id(switch_l3).turn_on();
+#             id(switch_l3l2).execute();
+#           }else if (str.compare("R5\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("下降 R5");
+#             id(switch_r3).turn_on();
+#             id(switch_r3r2).execute();
+#           }else if (str.compare("A6\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("关掉");
+#             id(switch_l1).turn_on();
+#             id(switch_l1r1l4r4).execute();
+#           }else if (str.compare("A7\r\n") == 0) {
+#             id(oled_display).fill(COLOR_OFF);
+#             id(display_text).publish_state("收衣服");
+#             id(switch_l4).turn_on();
+#             id(switch_l4r4l3r3l2r2).execute();
+#           }
+
+
+remote_transmitter:
+  pin: 2
+  carrier_duty_percent: 100%
+ 
+
+# 配置 I2C 总线，用于连接 OLED 屏幕
+i2c:
+  sda: 14
+  scl: 12
+  scan: true
+
+# 配置 OLED 显示
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x64"
+    address: 0x3C
+    id: oled_display
+    #update_interval: 10ms  # 缩短更新间隔，提高实时性
+    lambda: |-
+      it.fill(COLOR_OFF);
+      it.print(15, 15, id(my_font), id(display_text).state.c_str());
+
+# 配置字体
+font:
+  - file: "SIMHEI.TTF" # 用SSH访问esphome 可以直接把电脑的字体拖进去用
+    id: my_font
+    size: 25
+    glyphs: [打开关闭晾衣服收起来上升停止下降照明调试1234567890LRA,"\u0020"]
+
+text_sensor:
+  - platform: template
+    name: "Display Text"
+    id: display_text
+    
+script:
+  - id: switch_l1r1
+    then:
+      - delay: 500ms
+      - lambda: |-
+          id(switch_r1).turn_on();
+  - id: switch_l2r2
+    then:
+      - delay: 500ms
+      - lambda: |-
+          id(switch_r2).turn_on();
+  - id: switch_l3r3
+    then:
+      - delay: 500ms
+      - lambda: |-
+          id(switch_r3).turn_on();
+  - id: switch_l4r4
+    then:
+      - delay: 500ms
+      - lambda: |-
+          id(switch_r4).turn_on();
+
+  - id: switch_l3l2
+    then:
+      - delay: 13000ms
+      - lambda: |-
+          id(switch_l2).turn_on();
+  - id: switch_r3r2
+    then:
+      - delay: 13000ms
+      - lambda: |-
+          id(switch_r2).turn_on();
+
+  - id: switch_l3r3l2r2
+    then:
+      - delay: 500ms
+      - lambda: |-
+          id(switch_r3).turn_on();
+      - delay: 13000ms  
+      - lambda: |-
+          id(switch_l2).turn_on();
+      - delay: 500ms
+      - lambda: |-
+          id(switch_r2).turn_on();
+
+  - id: switch_l4r4l3r3l2r2
+    then:
+      - delay: 500ms
+      - lambda: |-
+          id(switch_r4).turn_on();
+      - delay: 500ms
+      - lambda: |-
+          id(switch_l3).turn_on();
+      - delay: 500ms  
+      - lambda: |-
+          id(switch_r3).turn_on();
+      - delay: 13000ms  
+      - lambda: |-
+          id(switch_l2).turn_on();
+      - delay: 500ms
+      - lambda: |-
+          id(switch_r2).turn_on();
+
+  - id: switch_l1r1l4r4
+    then:
+      - delay: 500ms
+      - lambda: |-
+          id(switch_r1).turn_on();
+      - delay: 500ms
+      - lambda: |-
+          id(switch_l4).turn_on();
+      - delay: 500ms
+      - lambda: |-
+          id(switch_r4).turn_on();
+
+switch:
+  - platform: template
+    name: "Send Data"
+    id: send_data
+    turn_on_action:
+      - uart.write: "Hello, Serial Device!\n"
+
+  - platform: template
+    name: Right Pole up
+    id: switch_r1
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: '0100111000100110001100000000000000010001'
+          protocol:
+            pulse_length: 350
+            sync: [14, 4]
+            zero: [1, 2]
+            one: [2, 1]
+          repeat:
+            times: 5
+            wait_time: 7500us
+  - platform: template
+    name: Right Pole Stop
+    id: switch_r2
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: '0100111000100110001100000000000001010101'
+          protocol:
+            pulse_length: 350
+            sync: [14, 4]
+            zero: [1, 2]
+            one: [2, 1]
+          repeat:
+            times: 5
+            wait_time: 7500us
+  - platform: template
+    name: Right Pole down
+    id: switch_r3
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: '0100111000100110001100000000000000110011'
+          protocol:
+            pulse_length: 350
+            sync: [14, 4]
+            zero: [1, 2]
+            one: [2, 1]
+          repeat:
+            times: 5
+            wait_time: 7500us
+  - platform: template
+    name: Right Light
+    id: switch_r4
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: '0100111000100110001100000000000000001111'   
+          protocol:
+            pulse_length: 350
+            sync: [14, 4]
+            zero: [1, 2]
+            one: [2, 1]
+          repeat:
+            times: 5
+            wait_time: 7500us
+  - platform: template
+    name: Left Pole up
+    id: switch_l1
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: '1101110110001110000100100000000000010001'
+          protocol:
+            pulse_length: 350
+            sync: [14, 4]
+            zero: [1, 2]
+            one: [2, 1]
+          repeat:
+            times: 5
+            wait_time: 7500us
+  - platform: template
+    name: Left Pole Stop
+    id: switch_l2
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: '1101110110001110000100100000000001010101'
+          protocol:
+            pulse_length: 350
+            sync: [14, 4]
+            zero: [1, 2]
+            one: [2, 1]
+          repeat:
+            times: 5
+            wait_time: 7500us
+  - platform: template
+    name: Left Pole down
+    id: switch_l3
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: '1101110110001110000100100000000000110011'
+          protocol:
+            pulse_length: 350
+            sync: [14, 4]
+            zero: [1, 2]
+            one: [2, 1]
+          repeat:
+            times: 5
+            wait_time: 7500us
+  - platform: template
+    name: Left Light
+    id: switch_l4
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: '1101110110001110000100100000000000001111'   
+          protocol:
+            pulse_length: 350
+            sync: [14, 4]
+            zero: [1, 2]
+            one: [2, 1]
+          repeat:
+            times: 5
+            wait_time: 7500us
